@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparatives & Superlatives | Neon Arcade</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Cyberpunk Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBase: '#0B0914',      
+                        panelBg: '#140f1e',       
+                        neonCyan: '#00f0ff',      
+                        neonPink: '#ff003c',     
+                        textLight: '#ffffff',
+                        textMuted: '#8a8893',
+                    },
+                    fontFamily: {
+                        heading: ['"Orbitron"', 'sans-serif'],
+                        body: ['"Outfit"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #0B0914;
+            background-image: url('bg.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #ffffff;
+            overflow: hidden;
+            user-select: none;
+            box-shadow: inset 0 0 0 2000px rgba(11, 9, 20, 0.85);
+        }
+
+        .hud-bar {
+            background: rgba(11, 9, 20, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+        }
+        
+        .footer-bar {
+            background: rgba(11, 9, 20, 0.8);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 0, 60, 0.2);
+        }
+
+        .slide-panel {
+            background: rgba(20, 15, 30, 0.6);
+            backdrop-filter: blur(25px);
+            border-radius: 12px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.9), inset 0 0 40px rgba(0,240,255,0.05);
+            border: 1px solid rgba(0, 240, 255, 0.1);
+            transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+            min-height: 500px;
+        }
+
+        .upgrade-btn {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid;
+            border-radius: 16px;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            padding: 24px 32px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .comp-btn { border-color: rgba(0, 240, 255, 0.5); }
+        .comp-btn:hover { background: rgba(0, 240, 255, 0.2); box-shadow: 0 0 30px rgba(0, 240, 255, 0.4); border-color: #00f0ff; transform: translateY(-5px); }
+        
+        .sup-btn { border-color: rgba(255, 0, 60, 0.5); }
+        .sup-btn:hover { background: rgba(255, 0, 60, 0.2); box-shadow: 0 0 40px rgba(255, 0, 60, 0.6); border-color: #ff003c; transform: translateY(-5px); }
+        
+        .reset-btn { border-color: rgba(255, 255, 255, 0.2); }
+        .reset-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: #fff; }
+
+        .quiz-btn {
+            position: relative;
+            background: rgba(20,15,30, 0.8);
+            border: 1px solid rgba(0,240,255,0.2);
+            border-radius: 12px;
+            padding: 24px 32px;
+            font-size: 2rem;
+            font-family: 'Outfit', sans-serif;
+            color: #fff;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        .quiz-btn:hover {
+            transform: translateX(10px);
+            border-color: #00f0ff;
+            box-shadow: 0 0 20px rgba(0,240,255,0.2);
+        }
+        .quiz-btn.correct {
+            border-color: #00f0ff;
+            box-shadow: 0 0 40px rgba(0,240,255,0.6);
+            color: #00f0ff;
+            font-weight: 700;
+        }
+        .quiz-btn.wrong {
+            border-color: #ff003c;
+            box-shadow: 0 0 40px rgba(255,0,60,0.6);
+            color: #ff003c;
+            animation: shake 0.4s;
+        }
+
+        .btn-nav {
+            background: linear-gradient(90deg, #00f0ff, #ff003c);
+            color: #fff;
+            border-radius: 100px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            border: none;
+            box-shadow: 0 10px 30px rgba(255, 0, 60, 0.3);
+        }
+        .btn-nav:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0, 240, 255, 0.5); }
+        .btn-nav:disabled { opacity: 0.2; cursor: not-allowed; filter: grayscale(1); box-shadow: none; }
+        
+        .btn-nav-outline {
+            background: transparent;
+            color: #00f0ff;
+            border: 1px solid #00f0ff;
+            border-radius: 100px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+        .btn-nav-outline:hover:not(:disabled) { background: rgba(0, 240, 255, 0.1); transform: translateY(-2px); }
+        .btn-nav-outline:disabled { opacity: 0.2; cursor: not-allowed; border-color: #8a8893; color: #8a8893; }
+
+        @keyframes fadeIn { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+        .animate-fade { animation: fadeIn 0.6s ease forwards; }
+        
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+        .anim-shake { animation: shake 0.4s; }
+
+        .progress-track { background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; height: 4px; }
+        .progress-fill { background: linear-gradient(90deg, #00f0ff, #ff003c); height: 100%; transition: width 0.8s cubic-bezier(0.25, 1, 0.25, 1); box-shadow: 0 0 10px #ff003c; }
+
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+
+    <!-- HUD -->
+    <header class="hud-bar h-20 px-8 flex items-center justify-between z-50 shrink-0">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 border border-neonCyan rounded-full flex items-center justify-center text-neonCyan text-lg bg-neonCyan/10 shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+                <i class="fa-solid fa-gamepad"></i>
+            </div>
+            <div>
+                <h1 class="font-heading text-lg text-textLight leading-none tracking-widest uppercase">Comparatives & Superlatives</h1>
+                <p class="font-body font-light text-neonPink text-xs tracking-widest uppercase mt-1"><strong class="font-bold">WOLF LABS</strong> • Level A1 • Arcade Masterclass</p>
+            </div>
+        </div>
+        
+        <div class="flex-1 max-w-xl mx-8 hidden md:block">
+            <div class="flex justify-between font-body text-xs text-textMuted mb-2 uppercase tracking-widest">
+                <span>Stage Progress</span>
+                <span id="progress-text">1/X</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-bar" style="width: 3%;"></div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <div class="px-5 py-2 rounded-full border border-neonPink/50 font-heading text-neonPink flex items-center gap-2 text-sm bg-neonPink/10 ml-2 shadow-[0_0_15px_rgba(255,0,60,0.3)]">
+                SCORE: <span id="score-text">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Arena -->
+    <main class="flex-1 relative overflow-hidden flex items-center justify-center p-6 md:p-12" id="arena">
+        <div id="slide-container" class="w-full max-w-7xl slide-panel p-10 md:p-20 animate-fade relative overflow-y-auto max-h-full flex flex-col justify-center">
+            <!-- Slides Injected Here -->
+        </div>
+    </main>
+
+    <!-- Footer Controls -->
+    <footer class="footer-bar h-24 px-8 flex items-center justify-between z-50 shrink-0">
+        <button id="btn-prev" onclick="prevSlide()" class="btn-nav-outline px-10 py-4 text-lg" disabled>
+            <i class="fa-solid fa-arrow-left mr-2"></i> PREV STAGE
+        </button>
+        <button id="btn-next" onclick="nextSlide()" class="btn-nav px-12 py-4 text-lg shadow-xl">
+            NEXT STAGE <i class="fa-solid fa-arrow-right ml-2"></i>
+        </button>
+    </footer>
+
+    <!-- Gold Dust Particles Canvas -->
+    <canvas id="particles" class="fixed inset-0 pointer-events-none z-[90]"></canvas>
+
+    <script>
+        // --- SAFE ENCODING UTILITIES ---
+        function safeJSONAttr(obj) { return JSON.stringify(obj).replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+        function safeHTMLStr(str) { return str.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+
+        // --- GAME STATE ---
+        let state = { current: 0, score: 0 };
+
+        // --- COMPONENTS ---
+        
+        const C_TeacherGuide = () => `
+            <div class="text-center max-w-4xl mx-auto">
+                <div class="inline-block border border-neonPink/50 text-neonPink px-6 py-2 rounded-full font-heading text-sm tracking-widest uppercase mb-10 bg-neonPink/10 animate-pulse"><i class="fa-solid fa-lock mr-2"></i>TEACHER GUIDE</div>
+                <h2 class="text-6xl font-heading text-textLight mb-10">Lesson Objectives</h2>
+                <div class="bg-white/5 p-12 rounded-2xl border border-white/10 text-left space-y-6 shadow-inner">
+                    <p class="font-body font-light text-3xl"><i class="fa-solid fa-bolt text-neonCyan mr-5"></i> <span class="text-textLight font-medium">Target:</span> Comparatives & Superlatives</p>
+                    <p class="font-body font-light text-3xl"><i class="fa-solid fa-bolt text-neonCyan mr-5"></i> <span class="text-textLight font-medium">Topics:</span> Tallest, Strongest, Fastest, Best, Worst</p>
+                    <p class="font-body font-light text-3xl"><i class="fa-solid fa-bolt text-neonCyan mr-5"></i> <span class="text-textLight font-medium">Format:</span> Video, Conversation, Grammar & Exercises</p>
+                    <hr class="my-8 border-white/10">
+                    <p class="font-body font-light text-textMuted italic text-center text-2xl">A balanced flow with videos, interactive arcade upgrades, and speaking practice!</p>
+                </div>
+            </div>`;
+
+        const C_Title = (title, subtitle, icon) => `
+            <div class="text-center py-16">
+                <p class="font-heading text-neonCyan tracking-[0.3em] uppercase mb-6 text-xl">WOLF LABS PRESENTS</p>
+                <div class="w-40 h-40 mx-auto border-4 border-neonCyan rounded-full flex items-center justify-center mb-10 bg-neonCyan/10 shadow-[0_0_50px_rgba(0,240,255,0.4)]">
+                    <i class="fa-solid ${icon} text-7xl text-neonCyan drop-shadow-[0_0_15px_rgba(0,240,255,0.8)]"></i>
+                </div>
+                <h1 class="text-7xl md:text-8xl font-heading text-textLight mb-8 leading-tight tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-r from-neonCyan to-neonPink">${title}</h1>
+                <p class="text-4xl font-body font-light text-textMuted max-w-3xl mx-auto leading-relaxed">${subtitle}</p>
+            </div>`;
+
+        const C_Speaking = (title, question, desc, prompts) => `
+            <div class="text-center max-w-5xl mx-auto py-10">
+                <div class="inline-block border border-neonCyan/50 text-neonCyan px-6 py-2 rounded-full font-heading text-sm tracking-widest uppercase mb-10 bg-neonCyan/10 shadow-[0_0_20px_rgba(0,240,255,0.2)]"><i class="fa-solid fa-comments mr-2"></i> ${title}</div>
+                <h2 class="text-6xl font-heading text-textLight mb-6 leading-snug drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">${question}</h2>
+                <p class="text-3xl font-body font-light text-textMuted mb-16">${desc}</p>
+                
+                <div class="bg-darkBase p-10 rounded-3xl border border-white/10 text-left shadow-inner">
+                    <h3 class="text-neonPink font-heading tracking-widest uppercase mb-6"><i class="fa-solid fa-microphone mr-2"></i> Speaking Starters:</h3>
+                    <div class="space-y-4">
+                        ${prompts.map(p => `
+                            <div class="bg-white/5 p-6 rounded-xl border border-white/10 text-2xl text-textLight"><span class="text-neonCyan">"</span>${p}<span class="text-neonCyan">"</span></div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>`;
+
+        const C_Options = (title, options, correctIdx) => `
+            <div class="text-center w-full max-w-5xl mx-auto">
+                <div class="inline-block border border-neonPink/30 text-neonPink px-6 py-2 rounded-full font-heading text-sm tracking-widest uppercase mb-10 bg-neonPink/10"><i class="fa-solid fa-pen-nib mr-2"></i> Exercise</div>
+                <h2 class="text-5xl font-heading text-textLight mb-16 leading-snug drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">${title}</h2>
+                <div class="flex flex-col gap-6">
+                    ${options.map((opt, i) => `
+                        <button class="quiz-btn" onclick="checkNeonAnswer(this, ${i === correctIdx}, false)">
+                            <span class="quiz-btn-bg"></span>
+                            <span class="relative z-10">${opt}</span>
+                        </button>
+                    `).join('')}
+                </div>
+            </div>`;
+
+        const C_Video = (vid, start, end, question) => `
+            <div class="text-center w-full max-w-6xl mx-auto">
+                <h2 class="text-5xl font-heading text-neonCyan mb-10 uppercase tracking-widest"><i class="fa-brands fa-youtube mr-4"></i> Video Mission</h2>
+                <div class="p-2 rounded-2xl border border-neonCyan/30 shadow-[0_0_40px_rgba(0,240,255,0.2)] mb-12 relative w-full pt-[56.25%] bg-black">
+                    <iframe class="absolute top-2 left-2 w-[calc(100%-16px)] h-[calc(100%-16px)] rounded-xl" src="https://www.youtube.com/embed/${vid}?start=${start}&end=${end}&rel=0" frameborder="0" allowfullscreen></iframe>
+                </div>
+                <p class="text-4xl font-body font-medium text-neonPink border border-neonPink/20 bg-neonPink/5 py-8 px-16 rounded-2xl inline-block shadow-inner">${question}</p>
+            </div>`;
+
+        const C_NeonUpgrader = (base, comp, sup, irregular = false) => `
+            <div class="text-center w-full max-w-6xl mx-auto flex flex-col items-center">
+                ${irregular ? `<div class="text-neonPink border border-neonPink/50 bg-neonPink/10 px-8 py-3 rounded-full mb-12 uppercase tracking-widest font-heading text-xl animate-pulse"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Irregular Warning</div>` : `<div class="text-neonCyan border border-neonCyan/50 bg-neonCyan/10 px-8 py-3 rounded-full mb-12 uppercase tracking-widest font-heading text-xl"><i class="fa-solid fa-microchip mr-2"></i> Grammar Upgrader</div>`}
+                
+                <!-- Base Word -->
+                <div class="bg-darkBase border-2 border-white/20 px-24 py-12 rounded-3xl mb-16 shadow-[0_0_30px_rgba(255,255,255,0.05)] transition-all duration-300 min-w-[500px]" id="upgrade-display">
+                    <span class="text-[100px] font-heading text-white uppercase tracking-widest transition-all duration-300 inline-block" id="upgrade-word">${base}</span>
+                </div>
+
+                <!-- Control Panel -->
+                <div class="flex gap-10">
+                    <button class="upgrade-btn comp-btn" onclick="triggerUpgrade('${comp}', 'comp')">
+                        <i class="fa-solid fa-arrow-up text-5xl mb-4 block text-neonCyan"></i>
+                        <span class="text-2xl uppercase tracking-widest block font-bold">Level 2</span>
+                        <span class="text-lg opacity-50 block mt-2">(Comparative)</span>
+                    </button>
+
+                    <button class="upgrade-btn sup-btn" onclick="triggerUpgrade('${sup}', 'sup')">
+                        <i class="fa-solid fa-angles-up text-6xl mb-4 block text-neonPink"></i>
+                        <span class="text-3xl uppercase tracking-widest block font-bold">Max Level</span>
+                        <span class="text-lg opacity-50 block mt-2">(Superlative)</span>
+                    </button>
+                    
+                    <button class="upgrade-btn reset-btn" onclick="triggerUpgrade('${base}', 'base')">
+                        <i class="fa-solid fa-rotate-left text-4xl mb-4 block"></i>
+                        <span class="text-xl uppercase tracking-widest block font-bold">Reset</span>
+                    </button>
+                </div>
+            </div>`;
+
+        const C_NeonQuiz = (question, options, correctIdx) => `
+            <div class="text-center w-full max-w-5xl mx-auto">
+                <div class="inline-block border border-neonCyan/30 text-neonCyan px-6 py-2 rounded-full font-heading text-sm tracking-widest uppercase mb-10 bg-neonCyan/10"><i class="fa-solid fa-bolt mr-2"></i> Memory Challenge</div>
+                <h2 class="text-6xl font-heading text-textLight mb-16 leading-snug drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">${question}</h2>
+                <div class="flex flex-col gap-8">
+                    ${options.map((opt, i) => `
+                        <button class="quiz-btn" onclick="checkNeonAnswer(this, ${i === correctIdx}, true)">
+                            <span class="relative z-10"><i class="fa-solid fa-caret-right text-neonCyan mr-4 opacity-50"></i> ${opt}</span>
+                        </button>
+                    `).join('')}
+                </div>
+            </div>`;
+
+        const C_Final = () => `
+            <div class="text-center py-20">
+                <div class="w-48 h-48 mx-auto border-4 border-neonPink rounded-full flex items-center justify-center mb-12 bg-neonPink/10 relative shadow-[0_0_80px_rgba(255,0,60,0.4)]">
+                    <i class="fa-solid fa-trophy text-8xl text-neonPink drop-shadow-[0_0_20px_rgba(255,0,60,0.8)]"></i>
+                    <div class="absolute inset-0 rounded-full border border-neonPink animate-ping opacity-20"></div>
+                </div>
+                <h1 class="text-[100px] font-heading text-transparent bg-clip-text bg-gradient-to-r from-neonCyan to-neonPink mb-8 uppercase tracking-widest drop-shadow-2xl">Mission Clear!</h1>
+                <p class="text-4xl font-body font-light text-textMuted mb-16">You completed all stages of the Arcade Masterclass.</p>
+                <div class="inline-block bg-darkBase p-12 rounded-3xl border border-neonCyan/50 shadow-[0_0_40px_rgba(0,240,255,0.2)]">
+                    <p class="text-2xl font-heading text-neonCyan mb-4 tracking-widest uppercase">Final Score</p>
+                    <p class="text-[120px] font-heading text-textLight leading-none" id="final-score-display">0</p>
+                </div>
+            </div>`;
+
+        // --- SLIDE DATA ---
+        const slides = [
+            /* 1 */ C_TeacherGuide(),
+            /* 2 */ C_Title("Arcade Mode", "Comparatives & Superlatives", "fa-gamepad"),
+            
+            // Warm up
+            /* 3 */ C_Speaking("Warm Up", "Let's compare!", "Look at your city. What is the biggest building? What is the oldest place?", ["The biggest building is...", "The oldest place is..."]),
+
+            // Chunk 1
+            /* 4 */ C_Video("5VGtCbFclgk", 7, 59, "Who is the tallest?"),
+            /* 5 */ C_NeonUpgrader("tall", "taller than", "the tallest"),
+            /* 6 */ C_Options("Which sentence is correct?", ["I am taller than you.", "I am tall than you.", "I am the taller than you."], 0),
+
+            // Chunk 2
+            /* 7 */ C_Video("5VGtCbFclgk", 59, 81, "Who is the strongest?"),
+            /* 8 */ C_NeonUpgrader("strong", "stronger than", "the strongest"),
+            /* 9 */ C_Speaking("Your Turn", "Who is the strongest person in your family?", "Think about your family members. Who can lift heavy things?", ["My father is stronger than...", "My brother is the strongest because..."]),
+
+            // Chunk 3
+            /* 10 */ C_Video("5VGtCbFclgk", 94, 204, "Who makes the best cake?"),
+            /* 11 */ C_NeonUpgrader("good", "better than", "the best", true),
+            /* 12 */ C_Options("Choose the correct one:", ["Pizza is the goodest food.", "Pizza is the best food.", "Pizza is better food."], 1),
+            /* 13 */ C_Speaking("Debate", "What is the best movie you have ever seen?", "Why is it better than other movies?", ["The best movie is...", "It is better than... because..."]),
+
+            // Chunk 4
+            /* 14 */ C_Video("5VGtCbFclgk", 223, 306, "Who is the worst dancer?"),
+            /* 15 */ C_NeonUpgrader("bad", "worse than", "the worst", true),
+            /* 16 */ C_Options("Grammar Check:", ["He is worse than me.", "He is badder than me.", "He is worst than me."], 0),
+
+            // Chunk 5
+            /* 17 */ C_Video("5VGtCbFclgk", 310, 348, "Who is the fastest?"),
+            /* 18 */ C_NeonUpgrader("fast", "faster than", "the fastest"),
+            /* 19 */ C_Speaking("Quick Question", "Are you faster than your best friend?", "Think about running or swimming.", ["Yes, I am faster than...", "No, I am slower than..."]),
+
+            // Quiz
+            /* 20 */ C_Title("Memory Challenge", "Let's test what you remember!", "fa-brain"),
+            /* 21 */ C_NeonQuiz("Who is taller than Georgie and Sian?", ["Buli and Tim", "Only Tim", "Only Sian"], 0),
+            /* 22 */ C_NeonQuiz("Who is the tallest?", ["Buli", "Tim", "Georgie"], 1),
+            /* 23 */ C_NeonQuiz("Who is the strongest?", ["Tim", "Georgie", "Buli"], 2),
+            /* 24 */ C_NeonQuiz("Whose cake is better than Tim's?", ["Buli's", "Sian's", "Nobody's"], 1),
+            /* 25 */ C_NeonQuiz("Who is the worst dancer?", ["Tim", "Sian", "Buli"], 0),
+
+            /* 26 */ C_Final()
+        ];
+
+        // --- ENGINE LOGIC ---
+        function renderSlide() {
+            try {
+                const container = document.getElementById('slide-container');
+                container.classList.remove('animate-fade');
+                void container.offsetWidth; 
+                
+                container.innerHTML = slides[state.current];
+                container.classList.add('animate-fade');
+                
+                updateHUD();
+            } catch (err) {
+                console.error("renderSlide Error:", err);
+            }
+        }
+
+        function updateHUD() {
+            document.getElementById('progress-text').innerText = `${state.current + 1}/${slides.length}`;
+            document.getElementById('progress-bar').style.width = `${((state.current + 1) / slides.length) * 100}%`;
+            document.getElementById('score-text').innerText = state.score;
+            
+            document.getElementById('btn-prev').disabled = state.current === 0;
+            
+            if(state.current === slides.length - 1) {
+                const fs = document.getElementById('final-score-display');
+                if(fs) fs.innerText = state.score;
+                document.getElementById('btn-next').style.display = 'none';
+                fireParticles();
+            } else {
+                document.getElementById('btn-next').style.display = 'block';
+            }
+        }
+
+        function nextSlide() { if (state.current < slides.length - 1) { state.current++; renderSlide(); } }
+        function prevSlide() { if (state.current > 0) { state.current--; renderSlide(); } }
+
+        // --- INTERACTIVE LOGIC ---
+        function triggerUpgrade(word, type) {
+            const display = document.getElementById('upgrade-display');
+            const wordEl = document.getElementById('upgrade-word');
+            
+            // reset styles
+            display.className = 'bg-darkBase border-2 px-24 py-12 rounded-3xl mb-16 transition-all duration-300 min-w-[500px] flex justify-center';
+            wordEl.className = 'text-[100px] font-heading uppercase tracking-widest transition-all duration-300 inline-block';
+            
+            wordEl.style.transform = 'scale(0.8)';
+            wordEl.style.opacity = '0';
+            
+            // No annoying modal, just smooth inline UI change
+            setTimeout(() => {
+                wordEl.innerText = word;
+                wordEl.style.transform = 'scale(1)';
+                wordEl.style.opacity = '1';
+                
+                if (type === 'comp') {
+                    display.classList.add('border-neonCyan', 'shadow-[0_0_50px_rgba(0,240,255,0.3)]', 'bg-neonCyan/5');
+                    wordEl.classList.add('text-neonCyan');
+                    wordEl.style.textShadow = '0 0 20px rgba(0,240,255,0.8)';
+                } else if (type === 'sup') {
+                    display.classList.add('border-neonPink', 'shadow-[0_0_80px_rgba(255,0,60,0.5)]', 'bg-neonPink/10');
+                    wordEl.classList.add('text-neonPink', 'font-bold');
+                    wordEl.style.textShadow = '0 0 40px rgba(255,0,60,0.9)';
+                } else {
+                    display.classList.add('border-white/20', 'shadow-[0_0_30px_rgba(255,255,255,0.05)]');
+                    wordEl.classList.add('text-white');
+                    wordEl.style.textShadow = 'none';
+                }
+            }, 300);
+        }
+
+        function checkNeonAnswer(btn, isCorrect, isMemoryGame = true) {
+            if (isCorrect) {
+                btn.classList.add('correct');
+                state.score += 100;
+            } else {
+                btn.classList.add('wrong');
+                setTimeout(() => btn.classList.remove('wrong'), 500);
+            }
+            document.getElementById('score-text').innerText = state.score;
+        }
+
+        // --- VISUAL EFFECTS ---
+        function fireParticles() {
+            const ctx = document.getElementById('particles').getContext('2d');
+            const c = document.getElementById('particles');
+            c.width = window.innerWidth; c.height = window.innerHeight;
+            let particles = [];
+            for(let i=0; i<100; i++) {
+                particles.push({
+                    x: Math.random() * c.width, y: Math.random() * c.height,
+                    r: Math.random() * 3 + 1, dx: Math.random() * 2 - 1, dy: Math.random() * -3 - 1,
+                    opacity: Math.random(),
+                    color: Math.random() > 0.5 ? '#00f0ff' : '#ff003c'
+                });
+            }
+            function animate() {
+                ctx.clearRect(0, 0, c.width, c.height);
+                particles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = p.opacity;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = p.color;
+                    ctx.fill();
+                    p.x += p.dx; p.y += p.dy;
+                    if(p.y < 0) p.y = c.height;
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        // Initialize
+        renderSlide();
+    </script>
+</body>
+</html>
